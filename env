@@ -1,0 +1,7 @@
+
+
+export ESP_IP_ADDRESS=192.168.17.150
+
+
+export THIS_PC_ADDRESS="`ip a show dev enp0s8 | grep "inet " | cut -f6 -d' ' | cut -f1 -d'/'`"
+export MOS_PORT=ws://${ESP_IP_ADDRESS}/rpc
