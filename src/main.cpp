@@ -9,7 +9,11 @@
 
 #include <string>
 
-#define FLOW_INPUT_PIN    3
+#define RELAY_PIN    16
+ #define FLOW_INPUT_PIN    22
+// tlacitko - bacha sluzi zaroven ako boot tlacitko !!
+//#define FLOW_INPUT_PIN    0
+#define LED_PIN    23
 
 mgos_timer_id probe_timer = 0;
 RuntimeData runtimeData;
@@ -18,8 +22,8 @@ RuntimeData runtimeData;
   Controls output relay
 */
 void setRelay() {
-  // todo
-  LOG(LL_INFO, ("TODO set relay to %s", runtimeData.relayStatus ? "ON" : "OFF"));
+  LOG(LL_INFO, ("Setting relay to %s", runtimeData.relayStatus ? "ON" : "OFF"));
+  mgos_gpio_write(RELAY_PIN, runtimeData.relayStatus);
 }
 
 /*
@@ -63,6 +67,7 @@ void recalculateValues() {
   Handle tick from flow control
 */
 void flow_tick_handler(int pin, void *pParam) {
+    mgos_gpio_toggle(LED_PIN);
     runtimeData.litresTotal += mgos_sys_config_get_flow_litres_per_tick();
     double now = mg_time();
     double timeDiff = now - runtimeData.lastTickTimestamp;
@@ -70,7 +75,8 @@ void flow_tick_handler(int pin, void *pParam) {
 
     runtimeData.lastTickTimestamp = now;
     runtimeData.ticksCount++;
-    //LOG(LL_INFO, ("Flow sensor tick at %f, litres total %f, current flow %f, ok ticksCount %lu", mg_time(), runtimeData.litresTotal, runtimeData.currentFlow, runtimeData.ticksCount));
+    LOG(LL_INFO, ("Flow sensor tick at %f, litres total %f, current flow %f, required flow: %i, ok ticksCount %lu, relay: %s",
+      mg_time(), runtimeData.litresTotal, runtimeData.currentFlow, mgos_sys_config_get_flow_required_litres_per_hour(), runtimeData.ticksCount, runtimeData.relayStatus ? "ON" : "OFF"));
     mgos_wdt_feed();
 }
 
@@ -142,17 +148,22 @@ void save_values_handler(struct mg_connection *c, int ev, void *p,
   recalculateValues();
 }
 
-enum mgos_app_init_result mgos_app_init(void) {
+
+
+
+enum mgos_app_init_result initialize_app(void) {
+
   LOG(LL_INFO, ("Initializing flow controller"));
 
   runtimeData.lastTickTimestamp = mg_time();
 
-  // setup flow detector input pin and handler
+  mgos_gpio_setup_output(RELAY_PIN, false);
+  mgos_gpio_setup_output(LED_PIN, false);
   mgos_gpio_setup_input(FLOW_INPUT_PIN, MGOS_GPIO_PULL_UP);
   mgos_gpio_set_button_handler(FLOW_INPUT_PIN,
                   MGOS_GPIO_PULL_UP,
                   MGOS_GPIO_INT_EDGE_NEG, 
-                  10 /* debounce ms */,
+                  2 /* debounce ms */,
                   flow_tick_handler,
                   NULL);
 
@@ -163,11 +174,40 @@ enum mgos_app_init_result mgos_app_init(void) {
 
   recalculateValues();
   mgos_sys_config_set_wifi_ap_enable(1);
-  
-  
+   
   LOG(LL_INFO, ("Initialization complete"));
 
   return MGOS_APP_INIT_SUCCESS;
 }
+
+
+// --------------------------------------------
+// DEVEL
+// --------------------------------------------
+bool delme;
+void devel_handler(void* arg) {
+  LOG(LL_INFO, (delme ? "tick" : "tock"));
+  mgos_gpio_setup_output(RELAY_PIN, delme);
+  mgos_gpio_setup_output(LED_PIN, delme);
+  delme = !delme;
+}
+enum mgos_app_init_result init_devel(void) {
+  mgos_gpio_set_mode(RELAY_PIN, MGOS_GPIO_MODE_OUTPUT);
+  mgos_gpio_write(RELAY_PIN, false);
+
+  //mgos_set_timer(5000, MGOS_TIMER_REPEAT, devel_handler, NULL);
+
+  LOG(LL_INFO, ("----------- DEVEL START -------------"));
+
+  return MGOS_APP_INIT_SUCCESS;
+}
+// --------------------------------------------
+
+
+enum mgos_app_init_result mgos_app_init(void) {
+  return initialize_app();
+  //return init_devel();
+}
+
 
 

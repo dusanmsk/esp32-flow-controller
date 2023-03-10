@@ -56,8 +56,8 @@ config_schema:
   - ["flow.ticks_to_recovery", "i", 20, {title: "Ticks to recovery"}]
 
 # olimex esp32, edit/remove if using other board
-  - ["eth.clk_mode", 3]
-  - ["eth.phy_pwr_gpio", 12]
+#  - ["eth.clk_mode", 3]
+#  - ["eth.phy_pwr_gpio", 12]
 
 # wifi ap
   - ["wifi.ap.enable", true]
