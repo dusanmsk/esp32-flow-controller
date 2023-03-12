@@ -81,8 +81,6 @@ static const char *main_page_html = R""""(<!DOCTYPE html><html>
             }
         </script>
     )"""";  
-// todo zmena hesla k wifi
-
 
 static void printMainPageHtml(struct mg_connection *c, RuntimeData* rd) {
   mg_printf(c, main_page_html,
