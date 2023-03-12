@@ -59,7 +59,7 @@ void recalculateValues() {
   probe_timer = mgos_set_timer(probeIntervalMs, MGOS_TIMER_REPEAT, probe_handler, NULL);
 
   // set and enable hw watchdog
-  int hwWatchdogInterval = runtimeData.tickIntervalSec * 2;
+  int hwWatchdogInterval = runtimeData.tickIntervalSec * 5;
   LOG(LL_INFO, ("Setting watchdog interval to %u s", hwWatchdogInterval));
   mgos_wdt_set_timeout(hwWatchdogInterval);
   mgos_wdt_enable();
@@ -105,32 +105,35 @@ void get_live_data_handler(struct mg_connection *c, int ev, void *p,
   struct http_message *http_message = (struct http_message *)p;
   mg_send_response_line(c, 200, "Content-Type: application/json\r\n");
   mg_printf(c, 
-      R""""({ "current_flow" : "%f", "relay_status" : "%s", "ticks_count": "%lu", "litres_total" : "%f" }
+      R""""({ "current_flow" : "%f", "relay_status" : "%s", "ticks_count": "%lu", "litres_total" : "%f", "uptime" : "%lu" }
       )"""",
       runtimeData.currentFlow,
       runtimeData.relayStatus ? "ON" : "OFF",
       runtimeData.ticksCount,
-      runtimeData.litresTotal
+      runtimeData.litresTotal,
+      ((unsigned long)mg_time())
     );
   c->flags |= (MG_F_SEND_AND_CLOSE);
 }
 
 void saveWifiPassword(const char* wifiPassword) {
-  // super-primitive check - password only alnum
-  int err = 0;
-  for(int i = 0; i < strlen(wifiPassword); i++) {
-    if(!isalnum(wifiPassword[i])) {
-      err++;
+  if(strlen(wifiPassword) > 0) {
+    // super-primitive check - password only alnum
+    int err = 0;
+    for(int i = 0; i < strlen(wifiPassword); i++) {
+      if(!isalnum(wifiPassword[i])) {
+        err++;
+      }
     }
-  }
-  if(!err) {
-    LOG(LL_INFO, ("Saving wifi password: %s", wifiPassword));
-    mgos_sys_config_set_wifi_ap_pass(wifiPassword);   // change of wifi password require restart
-    mgos_sys_config_save(&mgos_sys_config, true, NULL);
-    LOG(LL_INFO, ("Config saved. Restarting ..."));
-    mgos_system_restart();  
-  } else {
-    LOG(LL_INFO, ("Wifi password contains non-alnum characters, not changing"));
+    if(!err) {
+      LOG(LL_INFO, ("Saving wifi password: %s", wifiPassword));
+      mgos_sys_config_set_wifi_ap_pass(wifiPassword);   // change of wifi password require restart
+      mgos_sys_config_save(&mgos_sys_config, true, NULL);
+      LOG(LL_INFO, ("Config saved."));
+      mgos_system_restart();  
+    } else {
+      LOG(LL_INFO, ("Wifi password contains non-alnum characters, not changing"));
+    }
   }
 }
 
