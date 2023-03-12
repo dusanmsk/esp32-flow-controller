@@ -11,8 +11,6 @@
 
 #define RELAY_PIN    16
  #define FLOW_INPUT_PIN    22
-// tlacitko - bacha sluzi zaroven ako boot tlacitko !!
-//#define FLOW_INPUT_PIN    0
 #define LED_PIN    23
 
 mgos_timer_id probe_timer = 0;
@@ -32,8 +30,12 @@ void setRelay() {
 void probe_handler(void* arg) {
   double now = mg_time();
   if(now - runtimeData.lastTickTimestamp > runtimeData.tickIntervalSec) {
-    //LOG(LL_INFO, ("Missed tick, turning off"));
+    LOG(LL_DEBUG, ("Missed tick, turning off"));
     runtimeData.ticksCount = 0;
+  }
+  if(now - runtimeData.lastTickTimestamp > runtimeData.tickIntervalSec * 30) {
+    LOG(LL_DEBUG, ("Missed tick 30 times, setting flow to 0"));
+    runtimeData.currentFlow = 0;
   }
   bool newStatus = (runtimeData.ticksCount > mgos_sys_config_get_flow_ticks_to_recovery());
   if(runtimeData.relayStatus != newStatus) {
@@ -95,6 +97,23 @@ void get_html_page_handler(struct mg_connection *c, int ev, void *p,
   c->flags |= (MG_F_SEND_AND_CLOSE);
 }
 
+void get_live_data_handler(struct mg_connection *c, int ev, void *p,
+                        void *user_data) {
+  (void) p;
+  if (ev != MG_EV_HTTP_REQUEST) return;
+  c->flags |= (MG_F_SEND_AND_CLOSE);
+  struct http_message *http_message = (struct http_message *)p;
+  mg_send_response_line(c, 200, "Content-Type: application/json\r\n");
+  mg_printf(c, 
+      R""""({ "current_flow" : "%f", "relay_status" : "%s", "ticks_count": "%lu", "litres_total" : "%f" }
+      )"""",
+      runtimeData.currentFlow,
+      runtimeData.relayStatus ? "ON" : "OFF",
+      runtimeData.ticksCount,
+      runtimeData.litresTotal
+    );
+  c->flags |= (MG_F_SEND_AND_CLOSE);
+}
 
 void saveWifiPassword(const char* wifiPassword) {
   // super-primitive check - password only alnum
@@ -114,6 +133,8 @@ void saveWifiPassword(const char* wifiPassword) {
     LOG(LL_INFO, ("Wifi password contains non-alnum characters, not changing"));
   }
 }
+
+
 
 /*
   Handle submit form from webpage
@@ -170,6 +191,7 @@ enum mgos_app_init_result initialize_app(void) {
 
   //mgos_register_http_endpoint("/get_value", get_value_handler, NULL);
   mgos_register_http_endpoint("/", get_html_page_handler, NULL);
+  mgos_register_http_endpoint("/live_data", get_live_data_handler, NULL);
   mgos_register_http_endpoint("/save", save_values_handler, NULL);
 
   recalculateValues();

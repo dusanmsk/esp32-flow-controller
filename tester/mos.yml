@@ -1,0 +1,54 @@
+author: msk
+description: Tester for flow controller
+version: 0.1
+
+libs_version: ${mos.version}
+modules_version: ${mos.version}
+mongoose_os_version: ${mos.version}
+
+manifest_version: 2017-05-18
+
+# Optional. List of tags for online search.
+tags:
+  - c
+
+# List of files / directories with C sources. No slashes at the end of dir names.
+sources:
+  - src
+
+# List of dirs. Files from these dirs will be copied to the device filesystem
+filesystem:
+  - fs
+
+
+config_schema:
+
+  - ["debug.level", 3]
+  - ["debug.udp_log_addr", "192.168.17.30:7777"]
+
+# TODO remove
+  - ["wifi.sta.enable", true]
+  - ["wifi.sta.ssid", "msk-home"]
+  - ["wifi.sta.pass", "1029384756"]
+
+  
+libs:
+  - origin: https://github.com/mongoose-os-libs/boards
+  - origin: https://github.com/mongoose-os-libs/ca-bundle
+  - origin: https://github.com/mongoose-os-libs/rpc-service-config
+  - origin: https://github.com/mongoose-os-libs/rpc-service-fs
+  - origin: https://github.com/mongoose-os-libs/rpc-uart
+  - origin: https://github.com/mongoose-os-libs/wifi
+
+  - origin: https://github.com/mongoose-os-libs/rpc-service-ota  
+  - origin: https://github.com/mongoose-os-libs/rpc-ws
+  - origin: https://github.com/mongoose-os-libs/rpc-loopback
+
+  - origin: https://github.com/mongoose-os-libs/ota-http-server
+  - origin: https://github.com/mongoose-os-libs/http-server
+
+  
+  
+
+# Used by the mos tool to catch mos binaries incompatible with this file format
+# manifest_version: 2017-09-29

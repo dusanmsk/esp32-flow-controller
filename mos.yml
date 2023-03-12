@@ -50,7 +50,8 @@ filesystem:
 config_schema:
 
   - ["debug.level", 3]
-  - ["debug.factory_reset_gpio", 34]
+  - ["debug.udp_log_addr", "192.168.17.30:7778"]
+#  - ["debug.factory_reset_gpio", 34]
   - ["flow.required_litres_per_hour", "i", 1000, {title: "Required flow (l/h)"}]
   - ["flow.litres_per_tick", "f", 0.3, {title: "Litres per tick"}]
   - ["flow.ticks_to_recovery", "i", 20, {title: "Ticks to recovery"}]
@@ -59,21 +60,30 @@ config_schema:
 #  - ["eth.clk_mode", 3]
 #  - ["eth.phy_pwr_gpio", 12]
 
+# TODO remove
+  - ["wifi.sta.enable", true]
+  - ["wifi.sta.ssid", "msk-home"]
+  - ["wifi.sta.pass", "1029384756"]
+
+# TODO enable
 # wifi ap
-  - ["wifi.ap.enable", true]
-  - ["wifi.ap.ssid", "flowctrl"]
-  - ["wifi.ap.pass", "12345678"]
+#  - ["wifi.ap.enable", true]
+#  - ["wifi.ap.ssid", "flowctrl"]
+#  - ["wifi.ap.pass", "12345678"]
 
   
 libs:
   - origin: https://github.com/mongoose-os-libs/boards
   - origin: https://github.com/mongoose-os-libs/ca-bundle
   - origin: https://github.com/mongoose-os-libs/rpc-service-config
-  - origin: https://github.com/mongoose-os-libs/rpc-service-ota  
+  - origin: https://github.com/mongoose-os-libs/rpc-service-fs
   - origin: https://github.com/mongoose-os-libs/rpc-uart
+  - origin: https://github.com/mongoose-os-libs/wifi  
+  - origin: https://github.com/mongoose-os-libs/rpc-service-ota  
   - origin: https://github.com/mongoose-os-libs/ota-http-server
   - origin: https://github.com/mongoose-os-libs/http-server
   - origin: https://github.com/mongoose-os-libs/rpc-ws
+
 
 # Used by the mos tool to catch mos binaries incompatible with this file format
 # manifest_version: 2017-09-29
