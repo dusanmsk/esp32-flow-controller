@@ -27,12 +27,12 @@ static const char *main_page_html = R""""(<!DOCTYPE html><html>
             </div>
 
             <div>
-                <label>Current flow: </label>
+                <label>Current flow (l/h): </label>
                 <label for="currentFlow" id="currentFlow"/>
             </div>
 
             <div>
-                <label>Ticks count: </label>
+                <label>OK ticks count: </label>
                 <label for="ticksCount" id="ticksCount"/>
             </div>
 
@@ -40,6 +40,12 @@ static const char *main_page_html = R""""(<!DOCTYPE html><html>
                 <label>Total litres: </label>
                 <label for="litresTotal" id="litresTotal"/>
             </div>
+
+            <div>
+                <label>Uptime (s): </label>
+                <label for="uptime" id="uptime"/>
+            </div>
+
 
             <div>
                 <label>Relay status: </label>
@@ -64,6 +70,7 @@ static const char *main_page_html = R""""(<!DOCTYPE html><html>
                     document.getElementById('ticksCount').innerHTML = data.ticks_count; 
                     document.getElementById('relayStatus').innerHTML = data.relay_status; 
                     document.getElementById('litresTotal').innerHTML = data.litres_total; 
+                    document.getElementById('uptime').innerHTML = data.uptime; 
                 }).catch(function(err) {
                     console.log('Fetch Error :-S', err);
                 });                    
