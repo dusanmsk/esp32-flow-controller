@@ -1,2 +1,2 @@
 #!/bin/bash
-mos build --local --platform esp32 $@
+mos build --verbose --local --platform esp32 $@

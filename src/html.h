@@ -27,19 +27,25 @@ static const char *main_page_html = R""""(<!DOCTYPE html><html>
             </div>
 
             <div>
-                <label for="currentFlow">Current flow: %f</label>
+                <label>Current flow: </label>
+                <label for="currentFlow" id="currentFlow"/>
             </div>
 
             <div>
-                <label for="ticksCount">Ticks count: %u</label>
+                <label>Ticks count: </label>
+                <label for="ticksCount" id="ticksCount"/>
             </div>
-
 
             <div>
-                <label for="relay">Relay status: %s</label>
+                <label>Total litres: </label>
+                <label for="litresTotal" id="litresTotal"/>
             </div>
 
-          
+            <div>
+                <label>Relay status: </label>
+                <label for="relayStatus" id="relayStatus"/>
+            </div>
+
             <div>
               <input type="submit" value="Save" />
             </div>
@@ -48,6 +54,25 @@ static const char *main_page_html = R""""(<!DOCTYPE html><html>
         </body>
         </html>
 
+        <script>
+            var timer;
+            var refreshFunction = function() { 
+                fetch("/live_data").then(function(response) {
+                    return response.json();
+                }).then(function(data) {
+                    document.getElementById('currentFlow').innerHTML = data.current_flow; 
+                    document.getElementById('ticksCount').innerHTML = data.ticks_count; 
+                    document.getElementById('relayStatus').innerHTML = data.relay_status; 
+                    document.getElementById('litresTotal').innerHTML = data.litres_total; 
+                }).catch(function(err) {
+                    console.log('Fetch Error :-S', err);
+                });                    
+            }
+            window.onload = function() {
+                timer = setInterval(refreshFunction , 2000);
+                refreshFunction();
+            }
+        </script>
     )"""";  
 // todo zmena hesla k wifi
 
@@ -56,9 +81,6 @@ static void printMainPageHtml(struct mg_connection *c, RuntimeData* rd) {
   mg_printf(c, main_page_html,
             mgos_sys_config_get_flow_required_litres_per_hour(),
             mgos_sys_config_get_flow_litres_per_tick(),
-            mgos_sys_config_get_flow_ticks_to_recovery(),
-            rd->currentFlow,
-            rd->ticksCount,
-            rd->relayStatus ? "ON" : "OFF"
+            mgos_sys_config_get_flow_ticks_to_recovery()
             );
 }
