@@ -60,17 +60,10 @@ config_schema:
 #  - ["eth.clk_mode", 3]
 #  - ["eth.phy_pwr_gpio", 12]
 
-# TODO remove
-  - ["wifi.sta.enable", true]
-  - ["wifi.sta.ssid", "msk-home"]
-  - ["wifi.sta.pass", "1029384756"]
-
-# TODO enable
-# wifi ap
-#  - ["wifi.ap.enable", true]
-#  - ["wifi.ap.ssid", "flowctrl"]
-#  - ["wifi.ap.pass", "12345678"]
-
+  - ["wifi.ap.enable", false]
+  - ["wifi.ap.ssid", "flowctrl"]
+  - ["wifi.ap.pass", "12345678"]
+  - ["wifi.ap.trigger_on_gpio", 18]
   
 libs:
   - origin: https://github.com/mongoose-os-libs/boards
