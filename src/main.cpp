@@ -10,7 +10,7 @@
 #include <string>
 
 #define RELAY_PIN    16
- #define FLOW_INPUT_PIN    22
+#define FLOW_INPUT_PIN    22
 #define LED_PIN    23
 
 mgos_timer_id probe_timer = 0;
@@ -191,14 +191,12 @@ enum mgos_app_init_result initialize_app(void) {
                   flow_tick_handler,
                   NULL);
 
-
   //mgos_register_http_endpoint("/get_value", get_value_handler, NULL);
   mgos_register_http_endpoint("/", get_html_page_handler, NULL);
   mgos_register_http_endpoint("/live_data", get_live_data_handler, NULL);
   mgos_register_http_endpoint("/save", save_values_handler, NULL);
 
   recalculateValues();
-  mgos_sys_config_set_wifi_ap_enable(1);
    
   LOG(LL_INFO, ("Initialization complete"));
 
